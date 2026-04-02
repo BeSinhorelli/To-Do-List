@@ -1,0 +1,16 @@
+[
+  {
+    "id": 1,
+    "title": "treinar fofo",
+    "description": "fazer 3 series de 12 reps",
+    "completed": true,
+    "created_at": "2026-04-01 22:52:37"
+  },
+  {
+    "id": 2,
+    "title": "comer 200g de proteina",
+    "description": "comer frango, carne, peixe e ovo",
+    "completed": false,
+    "created_at": "2026-04-01 22:53:06"
+  }
+]
