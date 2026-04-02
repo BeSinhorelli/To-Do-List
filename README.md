@@ -1,4 +1,4 @@
-# 📝 Gerenciador de Tarefas - To-Do List API
+# <h1 align="center"> 📝 Gerenciador de Tarefas - To-Do List API </h1>
 
 Aplicação web full stack para gerenciamento de tarefas, com backend em Python utilizando Flask, integração com banco de dados MySQL e interface web moderna construída com HTML, CSS e JavaScript.
 
