@@ -63,3 +63,5 @@ pip install -r requirements.txt
 ```bash
 git clone https://github.com/seu-usuario/todo-app.git
 cd todo-app
+
+http://localhost:5000/
