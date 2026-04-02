@@ -1,49 +1,63 @@
-# 📝 Gerenciador de Tarefas - To-Do-List-API
+# 📝 Gerenciador de Tarefas - To-Do List API
 
-Uma aplicação web completa para gerenciamento de tarefas, construída com Python no backend e um frontend moderno com HTML, CSS e JavaScript. A aplicação utiliza MySQL para persistência de dados e oferece uma interface intuitiva e responsiva.
+Aplicação web full stack para gerenciamento de tarefas, com backend em Python utilizando Flask, integração com banco de dados MySQL e interface web moderna construída com HTML, CSS e JavaScript.
+
+O sistema permite o gerenciamento completo de tarefas, com foco em organização, produtividade e experiência do usuário.
+
+---
 
 ## 🚀 Funcionalidades
 
-- ✅ **CRUD completo** de tarefas (Criar, Ler, Atualizar, Deletar)
-- ✅ **Marcar tarefas como concluídas** com um clique
-- ✅ **Filtros** por status: Todas, Pendentes, Concluídas
-- ✅ **Interface responsiva** que funciona em desktop e dispositivos móveis
-- ✅ **Animações suaves** para melhor experiência do usuário
-- ✅ **Notificações em tempo real** para feedback de ações
-- ✅ **API RESTful** bem estruturada
-- ✅ **Persistência em MySQL** 
-- ✅ **Logging** para facilitar debugging
-- ✅ **Endpoint de health check** para monitoramento
-- ✅ **Estatísticas** das tarefas
+- ✅ CRUD completo de tarefas (Criar, Ler, Atualizar, Deletar)
+- ✅ Marcação de tarefas como concluídas ou pendentes
+- ✅ Filtros por status: todas, pendentes e concluídas
+- ✅ Interface responsiva (desktop e mobile)
+- ✅ Notificações visuais para feedback de ações
+- ✅ API RESTful estruturada
+- ✅ Persistência em banco de dados MySQL
+- ✅ Logging para debugging
+- ✅ Endpoint de health check para monitoramento
+- ✅ Estatísticas das tarefas
 
-## 📋 Pré-requisitos
-
-Antes de começar, você vai precisar ter instalado em sua máquina:
-
-- [Python 3.8+](https://www.python.org/downloads/)
-- [MySQL 5.7+](https://www.mysql.com/downloads/) ou [MariaDB 10.4+](https://mariadb.org/download/)
-- [pip](https://pip.pypa.io/en/stable/installation/)
-- [Git](https://git-scm.com/)
+---
 
 ## 🛠️ Tecnologias Utilizadas
 
 ### Backend
-- **Python 3.8+**
-- **MySQL Connector** - Driver para conexão com MySQL
-- **python-dotenv** - Gerenciamento de variáveis de ambiente
+- Python 3.8+
+- Flask
+- MySQL Connector
+- python-dotenv
 
 ### Frontend
-- **HTML5** - Estrutura da aplicação
-- **CSS3** - Estilização e animações
-- **JavaScript (ES6+)** - Interatividade e comunicação com API
-- **Font Awesome** - Ícones
+- HTML5
+- CSS3 (Flexbox, Grid, animações)
+- JavaScript (ES6+)
+- Font Awesome
 
 ### Banco de Dados
-- **MySQL / MariaDB** - Banco de dados relacional
+- MySQL (executado em ambiente local via XAMPP)
+
+---
+
+## 📋 Pré-requisitos
+
+Antes de começar, você vai precisar ter instalado:
+
+- Python 3.8+
+- MySQL ou MariaDB (ou XAMPP)
+- pip
+- Git
+
+---
 
 ## 📦 Instalação
 
 ### 1. Clone o repositório
 ```bash
-git clone https://github.com/BeSinhorelli/todo-app.git
-cd todo-app
+git clone https://github.com/BeSinhorelli/To-Do-List-API.git
+cd To-Do-List-API
+
+pip install -r requirements.txt
+CREATE DATABASE todo_app;
+python app.py
