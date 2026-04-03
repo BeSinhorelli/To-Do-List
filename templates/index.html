@@ -25,6 +25,12 @@
                 <div class="form-group">
                     <textarea id="taskDescription" placeholder="Descrição da tarefa" rows="3"></textarea>
                 </div>
+                <div class="form-group checkbox-group">
+                    <label>
+                        <input type="checkbox" id="taskPriority"> 
+                        <i class="fas fa-flag"></i> Marcar como Prioridade Alta
+                    </label>
+                </div>
                 <button type="submit" class="btn btn-primary">
                     <i class="fas fa-plus"></i> Adicionar Tarefa
                 </button>
@@ -33,10 +39,29 @@
 
         <div class="tasks-section">
             <h2>Minhas Tarefas</h2>
+            <div class="stats-bar">
+                <div class="stat">
+                    <i class="fas fa-tasks"></i>
+                    <span id="totalTasks">0</span> Total
+                </div>
+                <div class="stat">
+                    <i class="fas fa-check-circle"></i>
+                    <span id="completedTasks">0</span> Concluídas
+                </div>
+                <div class="stat">
+                    <i class="fas fa-clock"></i>
+                    <span id="pendingTasks">0</span> Pendentes
+                </div>
+                <div class="stat">
+                    <i class="fas fa-flag"></i>
+                    <span id="priorityTasks">0</span> Prioritárias
+                </div>
+            </div>
             <div class="filters">
                 <button class="filter-btn active" data-filter="all">Todas</button>
                 <button class="filter-btn" data-filter="pending">Pendentes</button>
                 <button class="filter-btn" data-filter="completed">Concluídas</button>
+                <button class="filter-btn" data-filter="priority">Prioritárias</button>
             </div>
             <div id="tasksList" class="tasks-list">
                 <!-- Tarefas serão carregadas aqui -->
@@ -64,6 +89,12 @@
                 <div class="form-group checkbox-group">
                     <label>
                         <input type="checkbox" id="editTaskCompleted"> Marcar como concluída
+                    </label>
+                </div>
+                <div class="form-group checkbox-group">
+                    <label>
+                        <input type="checkbox" id="editTaskPriority"> 
+                        <i class="fas fa-flag"></i> Prioridade Alta
                     </label>
                 </div>
                 <div class="modal-buttons">

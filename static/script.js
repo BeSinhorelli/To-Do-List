@@ -58,8 +58,11 @@ async function updateStats() {
     try {
         const response = await fetch(`${API_BASE_URL}/tasks/stats`);
         const stats = await response.json();
-        // Você pode adicionar um elemento para mostrar as estatísticas se quiser
-        console.log('Estatísticas:', stats);
+        
+        document.getElementById('totalTasks').textContent = stats.total;
+        document.getElementById('completedTasks').textContent = stats.completed;
+        document.getElementById('pendingTasks').textContent = stats.pending;
+        document.getElementById('priorityTasks').textContent = stats.priority_tasks;
     } catch (error) {
         console.error('Erro ao carregar estatísticas:', error);
     }
@@ -70,13 +73,14 @@ async function handleAddTask(e) {
     
     const title = document.getElementById('taskTitle').value.trim();
     const description = document.getElementById('taskDescription').value.trim();
+    const priority = document.getElementById('taskPriority').checked;
     
     if (!title) {
         showError('Por favor, insira um título para a tarefa.');
         return;
     }
     
-    const newTask = { title, description };
+    const newTask = { title, description, priority };
     
     try {
         const response = await fetch(`${API_BASE_URL}/tasks`, {
@@ -121,6 +125,30 @@ async function handleToggleTask(taskId) {
     }
 }
 
+async function handleTogglePriority(taskId) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/tasks/${taskId}/priority`, {
+            method: 'PATCH'
+        });
+        
+        const updatedTask = await response.json();
+        const index = tasks.findIndex(t => t.id === taskId);
+        if (index !== -1) {
+            tasks[index] = updatedTask;
+            renderTasks();
+            updateStats();
+            
+            const message = updatedTask.priority ? 
+                '⭐ Tarefa marcada como prioritária!' : 
+                '📌 Prioridade removida da tarefa';
+            showSuccess(message);
+        }
+    } catch (error) {
+        console.error('Erro ao alternar prioridade:', error);
+        showError('Erro ao atualizar prioridade.');
+    }
+}
+
 async function handleDeleteTask(taskId) {
     if (!confirm('Tem certeza que deseja excluir esta tarefa?')) return;
     
@@ -148,6 +176,7 @@ async function openEditModal(taskId) {
         document.getElementById('editTaskTitle').value = task.title;
         document.getElementById('editTaskDescription').value = task.description || '';
         document.getElementById('editTaskCompleted').checked = task.completed;
+        document.getElementById('editTaskPriority').checked = task.priority;
         
         const modal = document.getElementById('editModal');
         modal.style.display = 'block';
@@ -165,6 +194,7 @@ async function handleUpdateTask(e) {
     const title = document.getElementById('editTaskTitle').value.trim();
     const description = document.getElementById('editTaskDescription').value.trim();
     const completed = document.getElementById('editTaskCompleted').checked;
+    const priority = document.getElementById('editTaskPriority').checked;
     
     if (!title) {
         showError('O título é obrigatório');
@@ -175,7 +205,7 @@ async function handleUpdateTask(e) {
         const response = await fetch(`${API_BASE_URL}/tasks/${taskId}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ title, description, completed })
+            body: JSON.stringify({ title, description, completed, priority })
         });
         
         if (!response.ok) throw new Error('Erro ao atualizar');
@@ -217,6 +247,8 @@ function getFilteredTasks() {
             return tasks.filter(task => !task.completed);
         case 'completed':
             return tasks.filter(task => task.completed);
+        case 'priority':
+            return tasks.filter(task => task.priority && !task.completed);
         default:
             return tasks;
     }
@@ -237,10 +269,18 @@ function renderTasks() {
     }
     
     tasksList.innerHTML = filteredTasks.map(task => `
-        <div class="task-card ${task.completed ? 'completed' : ''}">
+        <div class="task-card ${task.completed ? 'completed' : ''} ${task.priority ? 'priority' : ''}">
             <div class="task-header">
-                <div class="task-title">${escapeHtml(task.title)}</div>
+                <div class="task-title-wrapper">
+                    ${task.priority ? '<i class="fas fa-flag priority-icon"></i>' : ''}
+                    <div class="task-title">${escapeHtml(task.title)}</div>
+                </div>
                 <div class="task-actions">
+                    <button class="action-btn priority-btn ${task.priority ? 'active' : ''}" 
+                            onclick="handleTogglePriority(${task.id})" 
+                            title="${task.priority ? 'Remover prioridade' : 'Marcar como prioritária'}">
+                        <i class="fas fa-flag"></i>
+                    </button>
                     <button class="action-btn edit-btn" onclick="openEditModal(${task.id})" title="Editar">
                         <i class="fas fa-edit"></i>
                     </button>
@@ -306,3 +346,9 @@ function showNotification(message, type) {
         setTimeout(() => notification.remove(), 300);
     }, 3000);
 }
+
+// Exportar funções para uso no HTML
+window.handleTogglePriority = handleTogglePriority;
+window.openEditModal = openEditModal;
+window.handleToggleTask = handleToggleTask;
+window.handleDeleteTask = handleDeleteTask;

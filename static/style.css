@@ -91,11 +91,12 @@ header h1 i {
     display: flex;
     align-items: center;
     cursor: pointer;
+    gap: 8px;
 }
 
 .checkbox-group input[type="checkbox"] {
     width: auto;
-    margin-right: 10px;
+    margin-right: 5px;
     cursor: pointer;
 }
 
@@ -142,10 +143,42 @@ header h1 i {
     font-size: 1.5rem;
 }
 
+/* Stats Bar */
+.stats-bar {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 12px;
+    flex-wrap: wrap;
+}
+
+.stat {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.stat i {
+    font-size: 1.2rem;
+}
+
+.stat span {
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: #667eea;
+}
+
 .filters {
     display: flex;
     gap: 10px;
     margin-bottom: 20px;
+    flex-wrap: wrap;
 }
 
 .filter-btn {
@@ -176,6 +209,12 @@ header h1 i {
     padding: 20px;
     transition: all 0.3s ease;
     animation: fadeIn 0.5s ease-out;
+    position: relative;
+}
+
+.task-card.priority {
+    border-left: 4px solid #ff4757;
+    background: linear-gradient(to right, #fff, #fff5f5);
 }
 
 @keyframes fadeIn {
@@ -211,13 +250,33 @@ header h1 i {
     margin-bottom: 10px;
 }
 
+.task-title-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+}
+
+.priority-icon {
+    color: #ff4757;
+    font-size: 1.1rem;
+    animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+}
+
 .task-title {
     font-size: 1.2rem;
     font-weight: 600;
     color: #212529;
     word-break: break-word;
-    flex: 1;
-    margin-right: 10px;
 }
 
 .task-actions {
@@ -238,6 +297,20 @@ header h1 i {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+}
+
+.priority-btn {
+    color: #ff4757;
+}
+
+.priority-btn:hover {
+    background: #ffe5e8;
+    transform: scale(1.1);
+}
+
+.priority-btn.active {
+    background: #ff4757;
+    color: white;
 }
 
 .edit-btn {
@@ -433,6 +506,15 @@ header h1 i {
     
     .btn {
         padding: 10px 20px;
+        font-size: 0.9rem;
+    }
+    
+    .stats-bar {
+        gap: 10px;
+    }
+    
+    .stat {
+        padding: 5px 10px;
         font-size: 0.9rem;
     }
 }

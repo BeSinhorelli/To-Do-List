@@ -7,6 +7,7 @@ import os
 import logging
 import webbrowser
 import threading
+import time  # ← ADICIONE AQUI!
 from dotenv import load_dotenv
 from functools import wraps
 
@@ -70,13 +71,22 @@ def init_database():
     try:
         cursor = connection.cursor()
         
-        # Criar tabela de tarefas
+        # Verificar se a coluna priority existe, se não, adicionar
+        cursor.execute("SHOW COLUMNS FROM tasks")
+        columns = [col[0] for col in cursor.fetchall()]
+        
+        if 'priority' not in columns:
+            cursor.execute("ALTER TABLE tasks ADD COLUMN priority BOOLEAN DEFAULT FALSE")
+            logger.info("Coluna 'priority' adicionada à tabela tasks")
+        
+        # Criar tabela de tarefas se não existir
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS tasks (
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 title VARCHAR(255) NOT NULL,
                 description TEXT,
                 completed BOOLEAN DEFAULT FALSE,
+                priority BOOLEAN DEFAULT FALSE,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
@@ -130,6 +140,7 @@ def format_task_for_response(task):
         'title': task['title'],
         'description': task['description'] or '',
         'completed': bool(task['completed']),
+        'priority': bool(task.get('priority', False)),
         'created_at': task['created_at'].strftime('%Y-%m-%d %H:%M:%S') if isinstance(task['created_at'], datetime) else task['created_at'],
         'updated_at': task['updated_at'].strftime('%Y-%m-%d %H:%M:%S') if isinstance(task.get('updated_at'), datetime) else task.get('updated_at')
     }
@@ -170,7 +181,8 @@ def get_tasks():
         elif filter_status == 'completed':
             query += " AND completed = 1"
         
-        query += " ORDER BY created_at DESC"
+        # Ordenar: prioridade alta primeiro, depois por data
+        query += " ORDER BY priority DESC, created_at DESC"
         
         cursor.execute(query, params)
         tasks = cursor.fetchall()
@@ -200,6 +212,7 @@ def add_task():
         }), 400
     
     cleaned_data = validation['cleaned_data']
+    priority = data.get('priority', False)
     
     connection = DatabaseConfig.get_connection()
     if not connection:
@@ -208,14 +221,15 @@ def add_task():
     try:
         cursor = connection.cursor()
         query = """
-            INSERT INTO tasks (title, description, completed, created_at)
-            VALUES (%s, %s, %s, %s)
+            INSERT INTO tasks (title, description, completed, priority, created_at)
+            VALUES (%s, %s, %s, %s, %s)
         """
         created_at = datetime.now()
         cursor.execute(query, (
             cleaned_data['title'],
             cleaned_data['description'],
             False,
+            priority,
             created_at
         ))
         connection.commit()
@@ -278,6 +292,7 @@ def update_task(task_id):
     
     cleaned_data = validation['cleaned_data']
     completed = data.get('completed', False)
+    priority = data.get('priority', False)
     
     connection = DatabaseConfig.get_connection()
     if not connection:
@@ -292,13 +307,14 @@ def update_task(task_id):
         
         query = """
             UPDATE tasks 
-            SET title = %s, description = %s, completed = %s, updated_at = CURRENT_TIMESTAMP
+            SET title = %s, description = %s, completed = %s, priority = %s, updated_at = CURRENT_TIMESTAMP
             WHERE id = %s
         """
         cursor.execute(query, (
             cleaned_data['title'],
             cleaned_data['description'],
             completed,
+            priority,
             task_id
         ))
         connection.commit()
@@ -387,6 +403,46 @@ def toggle_task(task_id):
         if connection:
             connection.close()
 
+@app.route('/api/tasks/<int:task_id>/priority', methods=['PATCH'])
+@handle_db_errors
+def toggle_priority(task_id):
+    """Alterna a prioridade da tarefa"""
+    connection = DatabaseConfig.get_connection()
+    if not connection:
+        return jsonify({'error': 'Erro de conexão com o banco de dados'}), 500
+    
+    try:
+        cursor = connection.cursor(dictionary=True)
+        
+        cursor.execute("SELECT priority FROM tasks WHERE id = %s", (task_id,))
+        result = cursor.fetchone()
+        
+        if not result:
+            return jsonify({'error': 'Tarefa não encontrada'}), 404
+        
+        new_priority = not bool(result['priority'])
+        
+        cursor.execute(
+            "UPDATE tasks SET priority = %s, updated_at = CURRENT_TIMESTAMP WHERE id = %s",
+            (new_priority, task_id)
+        )
+        connection.commit()
+        
+        cursor.execute("SELECT * FROM tasks WHERE id = %s", (task_id,))
+        updated_task = cursor.fetchone()
+        
+        return jsonify(format_task_for_response(updated_task))
+        
+    except Error as e:
+        connection.rollback()
+        logger.error(f"Erro ao alternar prioridade da tarefa {task_id}: {e}")
+        return jsonify({'error': str(e)}), 500
+    finally:
+        if 'cursor' in locals():
+            cursor.close()
+        if connection:
+            connection.close()
+
 @app.route('/api/tasks/stats', methods=['GET'])
 @handle_db_errors
 def get_stats():
@@ -403,7 +459,8 @@ def get_stats():
         cursor.execute("""
             SELECT 
                 SUM(completed) as completed,
-                SUM(NOT completed) as pending
+                SUM(NOT completed) as pending,
+                SUM(priority) as priority_tasks
             FROM tasks
         """)
         status = cursor.fetchone()
@@ -411,7 +468,8 @@ def get_stats():
         return jsonify({
             'total': total,
             'completed': status['completed'] or 0,
-            'pending': status['pending'] or 0
+            'pending': status['pending'] or 0,
+            'priority_tasks': status['priority_tasks'] or 0
         })
         
     except Error as e:
@@ -436,15 +494,13 @@ def open_browser():
     """Função para abrir o navegador apenas uma vez"""
     global browser_opened
     
-    # Verificar se o navegador já foi aberto
     if not browser_opened:
         browser_opened = True
-        import time
-        time.sleep(1.5)  # Aguarda o servidor iniciar completamente
+        time.sleep(1.5)  # Aguarda o servidor iniciar
         url = "http://localhost:5000"
         try:
             webbrowser.open(url)
-            logger.info("🌐 Navegador aberto automaticamente!")
+            logger.info("🌐 Navegador aberto automaticamente em http://localhost:5000")
         except Exception as e:
             logger.error(f"Erro ao abrir navegador: {e}")
 
@@ -453,12 +509,11 @@ if __name__ == '__main__':
         logger.info("🚀 Aplicação iniciando...")
         logger.info("📱 Acesse: http://localhost:5000")
         
-        # Verificar se não está no modo reload do Flask
+        # Abrir navegador apenas na primeira execução (não no reload)
         if not os.environ.get('WERKZEUG_RUN_MAIN'):
-            # Abrir navegador apenas na primeira execução
             threading.Thread(target=open_browser, daemon=True).start()
         
         # Iniciar o servidor Flask
-        app.run(debug=True, host='0.0.0.0', port=5000)
+        app.run(debug=True, host='0.0.0.0', port=5000, use_reloader=False)
     else:
         logger.error("❌ Falha ao inicializar o banco de dados. Aplicação não iniciada.")
