@@ -9,8 +9,7 @@ O sistema permite o gerenciamento completo de tarefas, com foco em organização
 ## 🚀 Funcionalidades
 
 - ✅ CRUD completo de tarefas (Criar, Ler, Atualizar, Deletar)
-- ✅ Marcação de tarefas como concluídas ou pendentes
-- ✅ Filtros por status: todas, pendentes e concluídas
+- ✅ Filtros por status: pendentes, concluídas ou prioritárias
 - ✅ Interface responsiva (desktop e mobile)
 - ✅ Notificações visuais para feedback de ações
 - ✅ API RESTful estruturada
