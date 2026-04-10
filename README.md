@@ -9,7 +9,8 @@
 
 Uma aplicação web full stack para gerenciamento de tarefas, desenvolvida com **Python (Flask)** no backend, **MySQL** como banco de dados e interface web em **HTML, CSS e JavaScript**. O projeto implementa uma **API RESTful** completa com todas as operações de um CRUD.
 
-![Print da Aplicação](https://via.placeholder.com/800x400?text=Gerenciador+de+Tarefas+App)
+<img width="1280" height="719" alt="image" src="https://github.com/user-attachments/assets/9790e13f-cb6f-4569-8b1b-1c45c278c07e" />
+
 
 ## ✨ Funcionalidades
 
